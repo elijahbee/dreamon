@@ -1,12 +1,14 @@
 "use client";
 import { useState } from "react";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function ExportPDFButton() {
   const [downloading, setDownloading] = useState(false);
   async function handleExport() {
     setDownloading(true);
     try {
-      const res = await fetch("/api/journal");
+      const res = await fetch(API_URL);
       const entries = await res.json();
       // Dynamically import jsPDF
       const jsPDF = (await import("jspdf")).jsPDF;

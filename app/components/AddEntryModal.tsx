@@ -23,11 +23,13 @@ export default function AddEntryModal({ open, onClose, onAdd }: { open: boolean,
     }
   }
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
   async function handleAdd() {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("/api/journal", {
+      const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, content, date, tags }),

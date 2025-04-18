@@ -21,12 +21,14 @@ export default function InsightsPage() {
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
   useEffect(() => {
     setMounted(true);
     async function fetchEntries() {
       try {
         setLoading(true);
-        const res = await fetch("/api/journal");
+        const res = await fetch(API_URL);
         if (!res.ok) throw new Error("Failed to fetch entries");
         const data = await res.json();
         setEntries(data);
