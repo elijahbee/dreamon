@@ -31,7 +31,7 @@ export default function Journal() {
     async function fetchEntries() {
       try {
         setLoading(true);
-        const res = await fetch("https://dreamon-two.vercel.app/api/journal");
+        const res = await fetch("https://dream-on-api.vercel.app/api/journal");
         if (!res.ok) throw new Error("Failed to fetch entries");
         const data = await res.json();
         setEntries(data);
@@ -50,7 +50,7 @@ export default function Journal() {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("https://dreamon-two.vercel.app/api/journal", {
+      const res = await fetch("https://dream-on-api.vercel.app/api/journal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, content, date, tags }),
