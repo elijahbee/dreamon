@@ -1,103 +1,113 @@
-import Image from "next/image";
+"use client";
+"use client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import AddEntryModal from "./components/AddEntryModal";
+import SearchIcon from "./components/SearchIcon";
 
+interface DreamEntry {
+  id: number;
+  title: string;
+  content: string;
+  createdAt: string;
+  date?: string;
+  tags?: string[];
+}
+
+// Hydration-safe: all client
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [entries, setEntries] = useState<DreamEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  useEffect(() => {
+    setMounted(true);
+    async function fetchEntries() {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/journal");
+        if (!res.ok) throw new Error("Failed to fetch entries");
+        const data = await res.json();
+        setEntries(data);
+      } catch (err) {
+        setError("Could not load dream entries");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchEntries();
+  }, []);
+
+  const [addModalOpen, setAddModalOpen] = useState(false);
+const [searchBoxOpen, setSearchBoxOpen] = useState(false);
+const [searchQuery, setSearchQuery] = useState("");
+const filteredEntries = searchQuery.trim()
+  ? entries.filter(entry =>
+      (entry.title + " " + entry.content + " " + (entry.tags ? entry.tags.join(" ") : ""))
+        .toLowerCase()
+        .includes(searchQuery.trim().toLowerCase())
+    )
+  : entries;
+
+return (
+  <div className="relative max-w-2xl mx-auto pt-2 pb-10 px-2 min-h-[60vh]">
+    <div className="flex items-center justify-between mb-6">
+      <h1 className="text-2xl font-bold tracking-tight">Recent Dreams</h1>
+      <div className="flex items-center gap-2">
+        <button
+          className="rounded-full w-8 h-8 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+          title="Search dreams"
+          onClick={() => setSearchBoxOpen(v => !v)}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <SearchIcon />
+        </button>
+        <button
+          className="rounded-full w-8 h-8 bg-[#ff61f6] text-white flex items-center justify-center hover:bg-[#470137] transition"
+          title="Add new entry"
+          onClick={() => setAddModalOpen(true)}
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <span className="text-2xl pb-0.5">+</span>
+        </button>
+      </div>
     </div>
-  );
+    {searchBoxOpen && (
+      <input
+        type="search"
+        value={searchQuery}
+        onChange={e => setSearchQuery(e.target.value)}
+        placeholder="Search dreams"
+        className="w-full p-2 mb-4 border border-gray-200 dark:border-gray-800 rounded-lg"
+        autoFocus
+      />
+    )}
+    <AddEntryModal
+      open={addModalOpen}
+      onClose={() => setAddModalOpen(false)}
+      onAdd={entry => setEntries([entry, ...entries])}
+    />
+    {error && <div className="text-red-500 mb-4">{error}</div>}
+    <div className="space-y-4">
+      {loading ? (
+        <p className="text-gray-500">Loading...</p>
+      ) : entries.length === 0 ? (
+        <p className="text-gray-500">No dreams recorded yet. <Link href="/journal" className="text-[#470137] dark:text-[#ff61f6] underline">Add your first dream</Link>.</p>
+      ) : mounted ? (
+        (filteredEntries as DreamEntry[]).map((entry: DreamEntry) => (
+          <div key={entry.id} className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#181024] shadow p-4 flex flex-col gap-1 mb-4">
+            <div className="text-xs text-gray-400 mb-1">
+              {entry.date ? new Date(entry.date).toLocaleDateString() : new Date(entry.createdAt).toLocaleDateString()}
+            </div>
+            <div className="font-semibold text-lg text-[#470137] dark:text-[#ff61f6]">
+              {entry.title}
+            </div>
+            <div className="text-gray-700 dark:text-gray-200 text-sm whitespace-pre-line line-clamp-2">
+              {entry.content}
+            </div>
+          </div>
+        ))
+      ) : null}
+    </div>
+  </div>
+);
 }
